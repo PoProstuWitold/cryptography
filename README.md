@@ -4,6 +4,25 @@
 
 Small program to demonstrate most important cryptography concepts. Written using Node.js Crypto module and TypeScript.
 
+You can create CryptographyService like this:
+```ts
+const cryptoService = new CryptographyService({
+	algorithm: Algorithms.AES_192_CBC,
+	hash: Hashes.SHA256,
+})
+```
+```ts
+export enum Algorithms {
+    AES_256_CBC = 'aes-256-cbc',
+    AES_192_CBC = 'aes-192-cbc',
+    AES_128_CBC = 'aes-128-cbc'
+}
+
+export enum Hashes {
+    SHA256 = 'sha256',
+    RIPEMD_60 = 'ripemd160'
+}
+```
 
 
 # Cryptography Concepts
@@ -70,5 +89,12 @@ console.log(decryptedMessage.toString() === message) // true
 ## 7. Signing
 Process of creating a digital signature of a message. A signature is a hash of the original message which is then encrypted with the sender’s private key. The signature can be verified by the recipient using the public key of the sender, which guarantees the original message is authentic and unmodified
 ```ts
-// crypto.service.ts
+const {
+	privateKey, publicKey
+} = await cryptoService.generateKeyPair(2048)
+
+const data = 'homster to be signed'
+const signature = await cryptoService.sign(data, privateKey)
+const verified = await cryptoService.verify(data, publicKey, signature)
+console.log(verified) // true
 ```

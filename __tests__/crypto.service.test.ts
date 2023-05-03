@@ -92,6 +92,27 @@ test('Asymmetric Encryption > throw on 2 keys from different pair', async() => {
 })
 
 
-// test('Signing', async() => {
+test('Signing > sign and verify', async() => {
+    const {
+        privateKey, publicKey
+    } = await cryptoService.generateKeyPair(2048)
     
-// })
+    const data = 'homster to be signed'
+    const signature = await cryptoService.sign(data, privateKey)
+    const verified = await cryptoService.verify(data, publicKey, signature)
+    expect(verified).toBe(true)
+})
+
+test('Signing > sign and verify with keys from 2 pairs', async() => {
+    const {
+        privateKey: privateKey1,
+    } = await cryptoService.generateKeyPair(2048)
+    const {
+        publicKey: publicKey2,
+    } = await cryptoService.generateKeyPair(2048)
+    
+    const data = 'homster to be signed'
+    const signature = await cryptoService.sign(data, privateKey1)
+    const verified = await cryptoService.verify(data, publicKey2, signature)
+    expect(verified).toBe(false)
+})

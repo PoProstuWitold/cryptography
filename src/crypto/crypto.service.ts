@@ -1,4 +1,4 @@
-import crypto, { createHash, createHmac, generateKeyPairSync, privateDecrypt, publicEncrypt } from 'node:crypto'
+import crypto, { createHash, createHmac, createSign, createVerify, generateKeyPairSync, privateDecrypt, publicEncrypt } from 'node:crypto'
 import { Algorithms, Hashes } from './constans'
 
 interface Cryptography {
@@ -86,6 +86,20 @@ export class CryptographyService {
             privateKey,
             encryptedMessage
         )
+    }
+
+    public async sign(data: string, privateKey: string) {
+        const signer = createSign('rsa-sha256')
+        signer.update(data)
+        const signature = signer.sign(privateKey, 'hex')
+        return signature
+    }
+
+    public async verify(data: string, publicKey: string, signature: string) {
+        const verifier = createVerify('rsa-sha256')
+        verifier.update(data)
+        const isVerified = verifier.verify(publicKey, signature, 'hex')
+        return isVerified
     }
 
     get hash() {
