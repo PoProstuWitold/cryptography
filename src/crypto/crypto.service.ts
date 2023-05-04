@@ -1,4 +1,8 @@
-import crypto, { createHash, createHmac, createSign, createVerify, generateKeyPairSync, privateDecrypt, publicEncrypt } from 'node:crypto'
+import crypto, {
+    createHash, createHmac, createSign, createVerify,
+    generateKeyPairSync, privateDecrypt, publicEncrypt,
+    randomBytes, scryptSync, timingSafeEqual
+} from 'node:crypto'
 import { Algorithms, Hashes } from './constans'
 
 interface Cryptography {
@@ -15,7 +19,7 @@ export class CryptographyService {
     constructor(options: Cryptography) {
         this._hash = options.hash
         this._algorithm = options.algorithm
-        
+
         this.initVector = crypto.randomBytes(16)
         this.securityKey = this.generateSecurityKey(this.algorithm)
     }
@@ -48,7 +52,7 @@ export class CryptographyService {
                 return crypto.randomBytes(16)
         }
     }
-    
+
     public async createHash(message: string) {
         return createHash(this.hash).update(message).digest('hex')
     }
@@ -100,6 +104,22 @@ export class CryptographyService {
         verifier.update(data)
         const isVerified = verifier.verify(publicKey, signature, 'hex')
         return isVerified
+    }
+
+    public async generateSalt(rounds: number, text: string) {
+        const salt = randomBytes(rounds).toString('hex') //
+        const hash = scryptSync(text, salt, 64).toString('hex') //
+        return `${salt}:${hash}` //
+    }
+
+    public async matchSalt(saltedText: string, text: string) {
+        const [salt, key] = saltedText.split(':')
+        const hashedBuffer = scryptSync(text, salt, 64)
+    
+        const keyBuffer = Buffer.from(key, 'hex')
+        const match = timingSafeEqual(hashedBuffer, keyBuffer)
+    
+        return match
     }
 
     get hash() {

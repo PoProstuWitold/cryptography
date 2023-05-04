@@ -38,6 +38,11 @@ console.log(hash1 === hash2) // true
 ## 2. Salt 
 Random string added to the input before hashing to make the hash more unique and harder to guess
 ```ts
+const text = 'Chomcio'
+const saltedText = await cryptoService.generateSalt(16, text)
+const match = await cryptoService.matchSalt(saltedText, text)
+
+console.log(match) // true
 ```
 
 ## 3. HMAC

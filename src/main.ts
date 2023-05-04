@@ -66,7 +66,14 @@ async function main() {
 		const verified = await cryptoService.verify(data, publicKey, signature)
 		console.log(verified)
 
-	} catch (err) {
+		// Salt
+		const text = 'Chomcio'
+		const saltedText = await cryptoService.generateSalt(16, text)
+		const match = await cryptoService.matchSalt(saltedText, text)
+
+		console.log(match)
+
+	} catch (err) { 
 		throw err
 	}
 }

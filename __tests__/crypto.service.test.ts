@@ -16,6 +16,15 @@ test('Hash > match hashes with same message', async() => {
     expect(hash1).toMatch(hash2)
 })
 
+test('Hash > not match hashes with different message', async() => {
+    const message1 = 'Chomik1'
+    const message2 = 'Chomik2'
+
+    const hash1 = await cryptoService.createHash(message1)
+    const hash2 = await cryptoService.createHash(message2)
+    expect(hash1).not.toMatch(hash2)
+})
+
 test('Hash > switch hash', async() => {
     cryptoService.hash = Hashes.RIPEMD_60
     expect(cryptoService.hash).toMatch(Hashes.RIPEMD_60)
@@ -24,9 +33,23 @@ test('Hash > switch hash', async() => {
     expect(cryptoService.hash).toMatch(Hashes.SHA256)
 })
 
-// test('Salt', async() => {
-    
-// })
+test('Salt > salt text and match it', async() => {
+    const text = 'Chomcio'
+	const saltedText = await cryptoService.generateSalt(16, text)
+	const match = await cryptoService.matchSalt(saltedText, text)
+
+    expect(match).toBe(true)
+})
+
+test('Salt > salt text and not match it', async() => {
+    const text = 'Chomcio'
+    const wrongText = 'Chomcio2'
+
+	const saltedText = await cryptoService.generateSalt(16, text)
+	const match = await cryptoService.matchSalt(saltedText, wrongText)
+
+    expect(match).toBe(false)
+})
 
 test('HMAC > match HMACs with same message and password', async() => {
     const message = 'Chomik'
@@ -35,6 +58,26 @@ test('HMAC > match HMACs with same message and password', async() => {
     const hmac1 = await cryptoService.createHmac(message, password)
     const hmac2 = await cryptoService.createHmac(message, password)
     expect(hmac1).toMatch(hmac2)
+})
+
+test('HMAC > not match HMACs with different message and same password', async() => {
+    const message1 = 'Chomik1'
+    const message2 = 'Chomik2'
+    const password = 'chomik123'
+
+    const hmac1 = await cryptoService.createHmac(message1, password)
+    const hmac2 = await cryptoService.createHmac(message2, password)
+    expect(hmac1).not.toMatch(hmac2)
+})
+
+test('HMAC > not match HMACs with same message and different password', async() => {
+    const message = 'Chomik'
+    const password1 = 'chomik123'
+    const password2 ='321kimohc'
+
+    const hmac1 = await cryptoService.createHmac(message, password1)
+    const hmac2 = await cryptoService.createHmac(message, password2)
+    expect(hmac1).not.toMatch(hmac2)
 })
 
 test('Symmetric Encryption > encrypt and decrypt message', async() => {
