@@ -1,10 +1,10 @@
 # Cryptography
 
-**Disclaimer**: I was inspired by [article](https://fireship.io/lessons/node-crypto-examples/) of ***Jeff Delaney*** known as ***Fireship*** 
+**Disclaimer**: I was inspired by [article](https://fireship.io/lessons/node-crypto-examples/) of *[Jeff Delaney](https://github.com/codediodeio)* creator of *[fireship.io](https://fireship.io/)* 
 
-Small program to demonstrate most important cryptography concepts. Written using Node.js Crypto module and TypeScript.
+Small program to demonstrate most important cryptography concepts. Written using Node.js native `crypto` module and TypeScript.
 
-You can create CryptographyService like this:
+You can create `CryptographyService` like this:
 ```ts
 const cryptoService = new CryptographyService({
 	algorithm: Algorithms.AES_192_CBC,
