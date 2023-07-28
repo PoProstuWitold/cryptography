@@ -1,6 +1,6 @@
 # Cryptography
 
-**Disclaimer**: I was inspired by [article](https://fireship.io/lessons/node-crypto-examples/) of *[Jeff Delaney](https://github.com/codediodeio)* creator of *[fireship.io](https://fireship.io/)* 
+**Disclaimer**: I was inspired by [article](https://fireship.io/lessons/node-crypto-examples/) of ***[Jeff Delaney](https://github.com/codediodeio)*** creator of *[fireship.io](https://fireship.io/)* 
 
 Small program to demonstrate most important cryptography concepts. Written using Node.js native `crypto` module and TypeScript.
 
