@@ -1,113 +1,121 @@
+import { describe } from 'node:test'
+import { strictEqual, notEqual, rejects } from 'node:assert'
+
 import { randomBytes } from 'node:crypto'
 import {
     CryptographyService
 } from '../src/crypto/crypto.service'
-import { Algorithms, Hashes } from '../src/crypto/constans'
+import { Encryptions, Hashes } from '../src/crypto/constans'
 
 const cryptoService = new CryptographyService({
-    algorithm: Algorithms.AES_256_CBC,
+    encryption: Encryptions.AES_256_CBC,
     hash: Hashes.SHA256
 })
 
-test('Hash > match hashes with same message', async() => {
+describe('Hash > match hashes with same message', async() => {
     const message = 'Chomik'
     const hash1 = await cryptoService.createHash(message)
     const hash2 = await cryptoService.createHash(message)
-    expect(hash1).toMatch(hash2)
+	strictEqual(hash1, hash2)
 })
 
-test('Hash > not match hashes with different message', async() => {
+describe('Hash > not match hashes with different message', async() => {
     const message1 = 'Chomik1'
     const message2 = 'Chomik2'
 
     const hash1 = await cryptoService.createHash(message1)
     const hash2 = await cryptoService.createHash(message2)
-    expect(hash1).not.toMatch(hash2)
+	notEqual(hash1, hash2)
 })
 
-test('Hash > switch hash', async() => {
+describe('Hash > switch hash', async() => {
     cryptoService.hash = Hashes.RIPEMD_60
-    expect(cryptoService.hash).toMatch(Hashes.RIPEMD_60)
+	strictEqual(cryptoService.hash, Hashes.RIPEMD_60)
 
     cryptoService.hash = Hashes.SHA256
-    expect(cryptoService.hash).toMatch(Hashes.SHA256)
+	strictEqual(cryptoService.hash, Hashes.SHA256)
 })
 
-test('Salt > salt text and match it', async() => {
+describe('Salt > salt text and match it', async() => {
     const text = 'Chomcio'
 	const saltedText = await cryptoService.generateSalt(16, text)
 	const match = await cryptoService.matchSalt(saltedText, text)
 
-    expect(match).toBe(true)
+	strictEqual(match, true)
 })
 
-test('Salt > salt text and not match it', async() => {
+describe('Salt > salt text and not match it', async() => {
     const text = 'Chomcio'
     const wrongText = 'Chomcio2'
 
 	const saltedText = await cryptoService.generateSalt(16, text)
 	const match = await cryptoService.matchSalt(saltedText, wrongText)
 
-    expect(match).toBe(false)
+	strictEqual(match, false)
 })
 
-test('HMAC > match HMACs with same message and password', async() => {
+describe('HMAC > match HMACs with same message and password', async() => {
     const message = 'Chomik'
     const password = 'chomik123'
 
     const hmac1 = await cryptoService.createHmac(message, password)
     const hmac2 = await cryptoService.createHmac(message, password)
-    expect(hmac1).toMatch(hmac2)
+	strictEqual(hmac1, hmac2)
 })
 
-test('HMAC > not match HMACs with different message and same password', async() => {
+describe('HMAC > not match HMACs with different message and same password', async() => {
     const message1 = 'Chomik1'
     const message2 = 'Chomik2'
     const password = 'chomik123'
 
     const hmac1 = await cryptoService.createHmac(message1, password)
     const hmac2 = await cryptoService.createHmac(message2, password)
-    expect(hmac1).not.toMatch(hmac2)
+	notEqual(hmac1, hmac2)
 })
 
-test('HMAC > not match HMACs with same message and different password', async() => {
+describe('HMAC > not match HMACs with same message and different password', async() => {
     const message = 'Chomik'
     const password1 = 'chomik123'
     const password2 ='321kimohc'
 
     const hmac1 = await cryptoService.createHmac(message, password1)
     const hmac2 = await cryptoService.createHmac(message, password2)
-    expect(hmac1).not.toMatch(hmac2)
+	notEqual(hmac1, hmac2)
 })
 
-test('Symmetric Encryption > encrypt and decrypt message', async() => {
+describe('Symmetric Encryption > encrypt and decrypt message', async() => {
+	const cryptoService = new CryptographyService({
+		encryption: Encryptions.AES_192_CBC,
+		hash: Hashes.SHA256,
+	})
+	
     const message = 'Chomik'
     const encryptedMessage = await cryptoService.symmetricEncrypt(message)
 	const decryptedMessage = await cryptoService.symmetricDecrypt(encryptedMessage)
-
-    expect(decryptedMessage).toMatch(message)
+	
+	strictEqual(decryptedMessage, message)
 })
 
-test('Symmetric Encryption > switch algorithm', async() => {
-    cryptoService.algorithm = Algorithms.AES_192_CBC
-    expect(cryptoService.securityKey.toString('hex').length).toEqual(randomBytes(24).toString('hex').length)
+describe('Symmetric Encryption > switch algorithm', async() => {
+    cryptoService.algorithm = Encryptions.AES_192_CBC
+	strictEqual(cryptoService.securityKey.toString('hex').length, randomBytes(24).toString('hex').length)
 
 
-    cryptoService.algorithm = Algorithms.AES_128_CBC
-    expect(cryptoService.securityKey.toString('hex').length).toEqual(randomBytes(16).toString('hex').length)
+    cryptoService.algorithm = Encryptions.AES_128_CBC
+	strictEqual(cryptoService.securityKey.toString('hex').length, randomBytes(16).toString('hex').length)
 })
 
-test('Keypairs > generate private and public keys', async() => {
+describe('Keypairs > generate private and public keys', async() => {
     const modulusLength = 2048
     const {
         privateKey, publicKey
     } = await cryptoService.generateKeyPair(modulusLength)
 
-    expect(privateKey).toContain('-----BEGIN PRIVATE KEY-----')
-    expect(publicKey).toContain('-----BEGIN PUBLIC KEY-----')
+	strictEqual(privateKey.includes('-----BEGIN PRIVATE KEY-----'), true)
+	strictEqual(publicKey.includes('-----BEGIN PUBLIC KEY-----'), true)
 })
 
-test('Asymmetric Encryption > encrypt and decrypt message', async() => {
+describe('Asymmetric Encryption > encrypt and decrypt message', async() => {
     const message = 'Chomster'
     const modulusLength = 2048
     const {
@@ -116,10 +124,10 @@ test('Asymmetric Encryption > encrypt and decrypt message', async() => {
     const encryptedMessage = await cryptoService.publicEncrypt(publicKey, message)
 	const decryptedMessage = await cryptoService.privateDecrypt(privateKey, encryptedMessage)
 
-    expect(decryptedMessage.toString()).toMatch(message)
+	strictEqual(decryptedMessage.toString(), message)
 })
 
-test('Asymmetric Encryption > throw on 2 keys from different pair', async() => {
+describe('Asymmetric Encryption > throw on 2 keys from different pair', async() => {
     const message = 'Chomster'
     const modulusLength = 2048
     const {
@@ -131,11 +139,11 @@ test('Asymmetric Encryption > throw on 2 keys from different pair', async() => {
     
     const encryptedMessage = await cryptoService.publicEncrypt(publicKey1, message)
 
-    await expect(cryptoService.privateDecrypt(privateKey2, encryptedMessage)).rejects.toThrow()
+	await rejects(cryptoService.privateDecrypt(privateKey2, encryptedMessage))
 })
 
 
-test('Signing > sign and verify', async() => {
+describe('Signing > sign and verify', async() => {
     const {
         privateKey, publicKey
     } = await cryptoService.generateKeyPair(2048)
@@ -143,10 +151,10 @@ test('Signing > sign and verify', async() => {
     const data = 'homster to be signed'
     const signature = await cryptoService.sign(data, privateKey)
     const verified = await cryptoService.verify(data, publicKey, signature)
-    expect(verified).toBe(true)
+	strictEqual(verified, true)
 })
 
-test('Signing > sign and verify with keys from 2 pairs', async() => {
+describe('Signing > sign and verify with keys from 2 pairs', async() => {
     const {
         privateKey: privateKey1,
     } = await cryptoService.generateKeyPair(2048)
@@ -157,5 +165,5 @@ test('Signing > sign and verify with keys from 2 pairs', async() => {
     const data = 'homster to be signed'
     const signature = await cryptoService.sign(data, privateKey1)
     const verified = await cryptoService.verify(data, publicKey2, signature)
-    expect(verified).toBe(false)
+    strictEqual(verified, false)
 })

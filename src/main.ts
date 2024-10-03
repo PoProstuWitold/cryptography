@@ -1,25 +1,26 @@
-import { CryptographyService } from './crypto/crypto.service'
 import { ErrorHandler } from './common/error-handler'
-import { Algorithms, Hashes } from './crypto/constans'
+import { Encryptions, Hashes } from './crypto/constans'
+import { CryptographyService } from './crypto/crypto.service'
 
 async function main() {
 	try {
 		new ErrorHandler()
 
 		const cryptoService = new CryptographyService({
-			algorithm: Algorithms.AES_192_CBC,
-			hash: Hashes.SHA256,
+			encryption: Encryptions.AES_192_CBC,
+			hash: Hashes.SHA256
 		})
 
-
 		// Symmetric Encryption
-		const encryptedMessage1 = await cryptoService.symmetricEncrypt('Hellooo')
-		const decryptedMessage1 = await cryptoService.symmetricDecrypt(encryptedMessage1)
+		const encryptedMessage1 =
+			await cryptoService.symmetricEncrypt('Hellooo')
+		const decryptedMessage1 =
+			await cryptoService.symmetricDecrypt(encryptedMessage1)
 		console.table([
 			{
-				'algorithm': cryptoService.algorithm,
-				'symmetricEncrypt': encryptedMessage1,
-				'symmetricDecrypt': decryptedMessage1
+				algorithm: cryptoService.algorithm,
+				symmetricEncrypt: encryptedMessage1,
+				symmetricDecrypt: decryptedMessage1
 			}
 		])
 
@@ -28,38 +29,44 @@ async function main() {
 		console.table([
 			{
 				'hash algorithm': cryptoService.hash,
-				'createHash': hash,
-				'plain': 'chomik123!'
+				createHash: hash,
+				plain: 'chomik123!'
 			}
 		])
 
 		// HMAC
-		const hmac = await cryptoService.createHmac('chomcio123!', 'secret_hamster')
+		const hmac = await cryptoService.createHmac(
+			'chomcio123!',
+			'secret_hamster'
+		)
 		console.table([
 			{
 				'hash algorithm': cryptoService.hash,
-				'createHmac': hmac,
-				'plain': 'chomik123!',
+				createHmac: hmac,
+				plain: 'chomik123!',
 				'hmac password': 'secret_hamster'
 			}
 		])
 
 		// Keypairs (RSA)
-		const { 
-			privateKey: privateKey1, 
-			publicKey: publicKey1  
-		} = await cryptoService.generateKeyPair(2048)
+		const { privateKey: privateKey1, publicKey: publicKey1 } =
+			await cryptoService.generateKeyPair(2048)
 
 		// Asymmetric Encryption (RSA)
-		const encryptedMessage2 = await cryptoService.publicEncrypt(publicKey1, 'Chomster')
-		const decryptedMessage2 = await cryptoService.privateDecrypt(privateKey1, encryptedMessage2)
+		const encryptedMessage2 = await cryptoService.publicEncrypt(
+			publicKey1,
+			'Chomster'
+		)
+		const decryptedMessage2 = await cryptoService.privateDecrypt(
+			privateKey1,
+			encryptedMessage2
+		)
 		console.log('publicEncrypt', encryptedMessage2.toString('hex'), '\n')
 		console.log('privateDecrypt', decryptedMessage2.toString())
 
 		// Signing
-		const {
-			privateKey, publicKey
-		} = await cryptoService.generateKeyPair(2048)
+		const { privateKey, publicKey } =
+			await cryptoService.generateKeyPair(2048)
 
 		const data = 'homster to be signed'
 		const signature = await cryptoService.sign(data, privateKey)
@@ -72,8 +79,7 @@ async function main() {
 		const match = await cryptoService.matchSalt(saltedText, text)
 
 		console.log(match)
-
-	} catch (err) { 
+	} catch (err) {
 		throw err
 	}
 }
